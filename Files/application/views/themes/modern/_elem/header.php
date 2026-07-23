@@ -24,7 +24,7 @@
     <!-- External libraries and fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600,800,900" rel="stylesheet" type="text/css">
     <link href="https://cdn.lineicons.com/3.0/lineicons.css" rel="stylesheet">
     <link href="assets/css/vegas.min.css?v=<?php echo $settings['version']; ?>" rel="stylesheet">
@@ -125,6 +125,15 @@
 
 <!-- Logo -->
 <a href="<?php echo $settings['site_url'] ?>"><img src="<?php echo $settings['logo_path']; ?>" class="main-logo"></a>
+
+<!-- Glass badge (vertical watermark) -->
+<div class="glass-badge">Glass &bull; File Sharing</div>
+
+<!-- Glass title (bottom-left hero text) -->
+<div class="glass-title">
+    <h1><?php echo htmlspecialchars($settings['site_name']); ?></h1>
+    <p>Glass &bull; File Sharing</p>
+</div>
 
 <!-- Page tabs -->
 <div class="tabs is-toggle is-small is-right" id="page-tabs">

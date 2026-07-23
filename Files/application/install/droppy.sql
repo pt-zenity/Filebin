@@ -318,3 +318,28 @@ CREATE INDEX idx_private_id ON droppy_receivers(private_id);
 -- Add index to `droppy_pages` table
 CREATE INDEX idx_type ON droppy_pages(type);
 CREATE INDEX idx_lang ON droppy_pages(lang);
+-- droppy_uploads table (missing from original install SQL)
+CREATE TABLE IF NOT EXISTS `droppy_uploads` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `upload_id` varchar(500) NOT NULL,
+  `secret_code` varchar(500) NOT NULL,
+  `email_from` varchar(500) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `password` varchar(500) DEFAULT NULL,
+  `destruct` varchar(50) DEFAULT NULL,
+  `share` varchar(50) DEFAULT NULL,
+  `count` int(11) DEFAULT 0,
+  `size` bigint(20) DEFAULT 0,
+  `time` int(20) DEFAULT NULL,
+  `time_expire` int(20) DEFAULT NULL,
+  `status` varchar(50) DEFAULT 'processing',
+  `ip` varchar(100) DEFAULT NULL,
+  `lang` varchar(50) DEFAULT NULL,
+  `file_previews` varchar(10) DEFAULT NULL,
+  `encrypt` varchar(500) DEFAULT NULL,
+  `pm_email` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_upload_id` (`upload_id`(191)),
+  KEY `idx_secret_code` (`secret_code`(191)),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

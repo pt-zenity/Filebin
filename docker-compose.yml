@@ -31,7 +31,7 @@ services:
       # Application
       RECONFIGURE: "true"
       MIGRATE: "true"
-      BASE_URL: ${BASE_URL:-http://localhost:8082/}
+      BASE_URL: ${BASE_URL:-https://sis5.xyz/}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-66ba5388d3a94073184c987db4ff701d}
       # Database
       DB_DRIVER: postgre
@@ -62,6 +62,7 @@ services:
       - fb-data-vol:/var/www/data/uploads
     networks:
       - filebin_net
+      - dokploy-network
 
 volumes:
   fb-db-vol:
@@ -72,3 +73,5 @@ volumes:
 networks:
   filebin_net:
     driver: bridge
+  dokploy-network:
+    external: true

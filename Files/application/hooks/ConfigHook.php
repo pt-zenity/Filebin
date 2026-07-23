@@ -41,7 +41,10 @@ class ConfigHook {
 
             if(!empty($settings['session_expiration'])) {
                 $this->CI->config->set_item('sess_expiration', $settings['session_expiration']);
-                ini_set('session.gc_maxlifetime', $settings['session_expiration']);
+                // Only set session ini if session not yet started (PHP 5.4+)
+                if(session_status() === PHP_SESSION_NONE) {
+                    ini_set('session.gc_maxlifetime', $settings['session_expiration']);
+                }
             }
 
             // Get active theme

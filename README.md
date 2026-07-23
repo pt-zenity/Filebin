@@ -1,58 +1,69 @@
-# FileBin — File Sharing Service
+# Droppy — Online File Sharing
 
-Self-hosted file sharing service berbasis [FileBin](https://github.com/Bluewind/filebin), dideploy via Docker menggunakan image [varakh/filebin](https://hub.docker.com/r/varakh/filebin).
+Self-hosted file sharing berbasis **Droppy** (CodeIgniter/PHP), dideploy via Docker dengan SSL Cloudflare.
 
 ## Stack
-- **App:** PHP/CodeIgniter (varakh/filebin)
-- **Database:** PostgreSQL 16
-- **Reverse Proxy:** (opsional) Nginx
-- **Runtime:** Docker + Docker Compose
+- **App**: PHP 8.1 + Apache (custom Docker image)
+- **Database**: MySQL 8.0
+- **Reverse Proxy**: Traefik v3 (Dokploy)
+- **SSL**: Cloudflare Origin Certificate (RSA 4096, valid 15 tahun)
+
+## URL
+**https://sis5.xyz**
 
 ## Quick Start
 
 ```bash
-# 1. Clone repo
-git clone <repo-url>
-cd webapp
-
-# 2. Salin dan edit konfigurasi
+# 1. Salin dan edit konfigurasi
 cp .env.example .env
-# Edit BASE_URL dan ENCRYPTION_KEY di .env
 
-# 3. Jalankan
-docker compose up -d
+# 2. Build dan jalankan
+docker compose up -d --build
 
-# 4. Buat user pertama
-docker exec -it filebin_app php /var/www/index.php user add_user
-
-# 5. Buka browser
-open http://localhost:8080
+# 3. Cek status
+docker compose ps
+docker compose logs -f app
 ```
 
 ## Perintah Berguna
 
-| Perintah | Fungsi |
-|---|---|
-| `make up` | Start semua container |
-| `make down` | Stop container |
-| `make logs` | Lihat log real-time |
-| `make status` | Status container |
-| `make create-user` | Buat user baru |
-| `make backup` | Backup database |
-| `make update` | Update ke image terbaru |
-| `make shell` | Shell ke container app |
+```bash
+docker compose ps               # Status containers
+docker compose logs -f app      # Log aplikasi
+docker compose logs -f db       # Log database
+docker compose restart app      # Restart app
+docker compose down             # Stop semua
+docker compose up -d --build    # Rebuild dan start
+```
 
 ## Konfigurasi (.env)
 
-| Variable | Default | Keterangan |
-|---|---|---|
-| `BASE_URL` | `http://localhost:8080/` | URL publik (wajib diubah) |
-| `ENCRYPTION_KEY` | (generated) | Key enkripsi 32 hex chars |
-| `DB_PASS` | `fbSecurePass2024` | Password database |
+| Variable | Keterangan |
+|---|---|
+| `BASE_URL` | URL publik app |
+| `ENCRYPTION_KEY` | 32-char hex key untuk enkripsi session |
+| `DB_PASS` | Password user database |
+| `DB_ROOT_PASS` | Password root database |
 
-## Port
-- **8080** → FileBin web app
+## Struktur File
 
-## Data Persistence
-- `fb-data-vol` → Upload files (`/var/www/data/uploads`)  
-- `fb-db-vol` → PostgreSQL data (`/var/lib/postgresql/data`)
+```
+.
+├── Dockerfile          # PHP 8.1 + Apache image
+├── entrypoint.sh       # Auto-patch config saat container start
+├── docker-compose.yml  # Service: app + db
+├── .env                # Konfigurasi aktif (tidak di-commit)
+├── .env.example        # Template konfigurasi
+└── Files/              # Source code Droppy (CodeIgniter)
+    ├── application/
+    ├── assets/
+    ├── uploads/
+    └── index.php
+```
+
+## Traefik Config (server)
+
+```
+/etc/dokploy/traefik/dynamic/droppy.yml          # Router: sis5.xyz -> droppy_app
+/etc/dokploy/traefik/dynamic/certificates/       # SSL cert & key
+```

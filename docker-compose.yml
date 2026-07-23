@@ -1,77 +1,56 @@
 services:
 
   db:
-    image: postgres:16-alpine
-    container_name: filebin_db
+    image: mysql:8.0
+    container_name: droppy_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: fb
-      POSTGRES_PASSWORD: ${DB_PASS:-fbSecurePass2024}
-      POSTGRES_DB: fb
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-droppyRoot2024}
+      MYSQL_DATABASE: droppy
+      MYSQL_USER: droppy
+      MYSQL_PASSWORD: ${DB_PASS:-droppyPass2024}
     volumes:
-      - fb-db-vol:/var/lib/postgresql/data
+      - droppy-db-vol:/var/lib/mysql
+      - ./Files/application/install/droppy.sql:/docker-entrypoint-initdb.d/01-droppy.sql:ro
     networks:
-      - filebin_net
+      - droppy_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fb -d fb"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=${DB_ROOT_PASS:-droppyRoot2024}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   app:
-    image: varakh/filebin:latest
-    container_name: filebin_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: droppy_app:latest
+    container_name: droppy_app
     restart: unless-stopped
-    ports:
-      - "8082:80"
     depends_on:
       db:
         condition: service_healthy
     environment:
-      # Application
-      RECONFIGURE: "true"
-      MIGRATE: "true"
-      BASE_URL: ${BASE_URL:-https://sis5.xyz/}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-66ba5388d3a94073184c987db4ff701d}
-      # Database
-      DB_DRIVER: postgre
       DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: fb
-      DB_USER: fb
-      DB_PASS: ${DB_PASS:-fbSecurePass2024}
-      DB_DEBUG: 0
-      DB_SAVE_QUERIES: 0
-      # PHP & Upload limits
-      PHP_MEMORY_LIMIT: 512M
-      MAX_UPLOAD: 1024M
-      PHP_MAX_FILE_UPLOAD: 100
-      PHP_MAX_POST: 1024M
-      # Upload settings
-      UPLOAD_MAX_SIZE: 1073741824
-      UPLOAD_MAX_TEXT_SIZE: 2097152
-      UPLOAD_MAX_AGE: 2592000
-      ACTIONS_MAX_AGE: 86400
-      SMALL_UPLOAD_SIZE: 5120
-      TARBALL_MAX_SIZE: 1073741824
-      TARBALL_CACHE_TIME: 300
-      MAX_INVITATION_KEYS: 10
-      CACHE_BACKEND: dummy
-      SMTP_ENABLED: "false"
+      DB_NAME: droppy
+      DB_USER: droppy
+      DB_PASS: ${DB_PASS:-droppyPass2024}
+      BASE_URL: https://sis5.xyz/
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-a8f3d2e1c9b4f7a0e5d6c3b2a1f8e9d0}
     volumes:
-      - fb-data-vol:/var/www/data/uploads
+      - droppy-uploads-vol:/var/www/html/uploads
     networks:
-      - filebin_net
+      - droppy_net
       - dokploy-network
 
 volumes:
-  fb-db-vol:
+  droppy-db-vol:
     driver: local
-  fb-data-vol:
+  droppy-uploads-vol:
     driver: local
 
 networks:
-  filebin_net:
+  droppy_net:
     driver: bridge
   dokploy-network:
     external: true
